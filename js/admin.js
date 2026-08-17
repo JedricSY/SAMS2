@@ -391,6 +391,8 @@ function wireStaticButtons() {
   document.getElementById('add-section-btn').addEventListener('click', () => openSectionModal(null));
   document.getElementById('add-teacher-btn').addEventListener('click', () => openTeacherModal(null));
   document.getElementById('add-student-btn').addEventListener('click', () => openStudentModal(null));
+  document.getElementById('import-teachers-btn').addEventListener('click', () => openBulkImportTeachersModal());
+  document.getElementById('import-students-btn').addEventListener('click', () => openBulkImportStudentsModal());
   const picker = wirePhotoPicker(document.getElementById('logo-picker'), '', 'Logo');
   document.getElementById('logo-picker').__picker = picker;
 }
