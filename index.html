@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>SAMS — Sign In</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="toast-host"></div>
+  <div class="login-wrap">
+    <div class="login-card">
+      <img id="school-logo" class="logo" style="display:none" alt="School logo">
+      <h1 id="school-name">Student Attendance Management System</h1>
+      <div class="sub">Sign in with your school account</div>
+      <div class="login-error" id="login-error"></div>
+      <form id="login-form">
+        <div class="field">
+          <label for="username">Username</label>
+          <input type="text" id="username" autocomplete="username" required>
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input type="password" id="password" autocomplete="current-password" required>
+        </div>
+        <button type="submit" class="btn block" id="login-btn">Sign In</button>
+      </form>
+      <p class="hint mt-16">Default admin login: <span class="mono">admin</span> / <span class="mono">admin123</span> (change it after first sign-in).</p>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/common.js"></script>
+  <script>
+    (async function init() {
+      // If already signed in, skip straight to the right dashboard.
+      const user = SAMS.getUser();
+      if (user && SAMS.getToken()) {
+        location.href = user.role === 'admin' ? 'admin.html' : 'teacher.html';
+        return;
+      }
+      try {
+        const settings = await SAMS.publicSettings();
+        if (settings.schoolName) document.getElementById('school-name').textContent = settings.schoolName;
+        if (settings.logoUrl) {
+          const img = document.getElementById('school-logo');
+          img.src = settings.logoUrl;
+          img.style.display = 'block';
+        }
+      } catch (e) { /* backend not configured yet — non-fatal on the login screen */ }
+    })();
+
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const errBox = document.getElementById('login-error');
+      errBox.style.display = 'none';
+      const btn = document.getElementById('login-btn');
+      btn.disabled = true; btn.textContent = 'Signing in…';
+      try {
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value;
+        const data = await SAMS.call('login', { username, password });
+        SAMS.setToken(data.token);
+        SAMS.setUser(data.user);
+        location.href = data.user.role === 'admin' ? 'admin.html' : 'teacher.html';
+      } catch (err) {
+        errBox.textContent = err.message;
+        errBox.style.display = 'block';
+      } finally {
+        btn.disabled = false; btn.textContent = 'Sign In';
+      }
+    });
+  </script>
+</body>
+</html>
