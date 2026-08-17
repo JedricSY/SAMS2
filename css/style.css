@@ -1,0 +1,256 @@
+/* ============================================================
+   SAMS — Student Attendance Management System
+   Theme: "gate logbook / ID badge" — navy + stamped status badges
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap');
+
+:root {
+  --navy-950: #0f1a30;
+  --navy-900: #16264b;
+  --navy-800: #1e3260;
+  --navy-700: #2a4380;
+  --navy-100: #e7ecf7;
+  --paper: #f4f5f7;
+  --paper-card: #ffffff;
+  --line: #dde1ea;
+  --ink: #1a1f2b;
+  --ink-soft: #5a6272;
+  --gold: #c99a2e;
+  --gold-soft: #f4e6c2;
+  --green: #2f7d5c;
+  --green-soft: #e2f2ea;
+  --red: #c1443b;
+  --red-soft: #fbe6e4;
+  --radius: 14px;
+  --shadow: 0 2px 10px rgba(15, 26, 48, 0.08);
+  --shadow-lift: 0 10px 30px rgba(15, 26, 48, 0.16);
+  --font-display: 'Space Grotesk', 'Inter', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3, .display { font-family: var(--font-display); letter-spacing: -0.01em; }
+.mono { font-family: var(--font-mono); }
+a { color: inherit; }
+button { font-family: inherit; }
+:focus-visible { outline: 2px solid var(--navy-700); outline-offset: 2px; }
+
+img.photo, .avatar {
+  object-fit: cover;
+  background: var(--navy-100);
+  border-radius: 50%;
+}
+
+/* ---- Buttons ------------------------------------------------ */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  border: none; border-radius: 10px; padding: 11px 18px; font-weight: 600; font-size: 0.92rem;
+  cursor: pointer; transition: transform .12s ease, box-shadow .12s ease, background .15s ease;
+  background: var(--navy-900); color: #fff;
+}
+.btn:hover { background: var(--navy-800); }
+.btn:active { transform: scale(0.98); }
+.btn.secondary { background: var(--paper-card); color: var(--navy-900); border: 1px solid var(--line); }
+.btn.secondary:hover { background: var(--navy-100); }
+.btn.ghost { background: transparent; color: var(--navy-900); }
+.btn.danger { background: var(--red); }
+.btn.danger:hover { background: #a83a32; }
+.btn.gold { background: var(--gold); color: var(--navy-950); }
+.btn.block { width: 100%; }
+.btn.sm { padding: 7px 12px; font-size: 0.82rem; border-radius: 8px; }
+.btn:disabled { opacity: 0.55; cursor: not-allowed; }
+.icon-btn {
+  width: 38px; height: 38px; border-radius: 10px; border: 1px solid var(--line);
+  background: var(--paper-card); display: inline-flex; align-items: center; justify-content: center;
+  cursor: pointer;
+}
+
+/* ---- Cards / layout ------------------------------------------ */
+.card {
+  background: var(--paper-card); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 18px; box-shadow: var(--shadow);
+}
+.grid { display: grid; gap: 14px; }
+.grid.cols-2 { grid-template-columns: 1fr 1fr; }
+.grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 640px) {
+  .grid.cols-2, .grid.cols-3 { grid-template-columns: 1fr; }
+}
+
+.container { max-width: 1180px; margin: 0 auto; padding: 0 16px; }
+
+/* ---- Login screen --------------------------------------------- */
+.login-wrap {
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  background:
+    radial-gradient(circle at 20% 10%, rgba(255,255,255,0.05), transparent 40%),
+    linear-gradient(160deg, var(--navy-950), var(--navy-900) 55%, var(--navy-800));
+  padding: 24px;
+}
+.login-card {
+  width: 100%; max-width: 380px; background: var(--paper-card); border-radius: 20px;
+  padding: 32px 28px; box-shadow: var(--shadow-lift); text-align: center;
+}
+.login-card .logo { width: 64px; height: 64px; border-radius: 16px; margin: 0 auto 14px; display: block; object-fit: cover; }
+.login-card h1 { font-size: 1.35rem; margin: 0 0 4px; color: var(--navy-900); }
+.login-card .sub { color: var(--ink-soft); font-size: 0.88rem; margin-bottom: 22px; }
+.login-card .field { text-align: left; margin-bottom: 14px; }
+.login-error { background: var(--red-soft); color: var(--red); border-radius: 8px; padding: 10px 12px; font-size: 0.85rem; margin-bottom: 14px; display: none; }
+
+/* ---- Form fields ------------------------------------------------ */
+label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--ink-soft); margin-bottom: 6px; }
+input[type=text], input[type=password], input[type=email], input[type=tel], input[type=date], input[type=number], select, textarea {
+  width: 100%; padding: 11px 12px; border-radius: 10px; border: 1px solid var(--line);
+  background: var(--paper); font-size: 0.94rem; color: var(--ink); font-family: inherit;
+}
+input:focus, select:focus, textarea:focus { border-color: var(--navy-700); background: #fff; }
+.field { margin-bottom: 12px; }
+.field-row { display: flex; gap: 10px; }
+.field-row .field { flex: 1; }
+.hint { font-size: 0.76rem; color: var(--ink-soft); margin-top: 4px; }
+
+/* ---- App shell: top bar + bottom tabs (mobile), side rail (tablet+) --- */
+.app-shell { min-height: 100vh; display: flex; flex-direction: column; }
+.topbar {
+  background: var(--navy-900); color: #fff; padding: 12px 16px; display: flex; align-items: center;
+  gap: 12px; position: sticky; top: 0; z-index: 20;
+}
+.topbar .logo { width: 32px; height: 32px; border-radius: 8px; object-fit: cover; background: rgba(255,255,255,0.15); }
+.topbar .school-name { font-family: var(--font-display); font-weight: 600; font-size: 1.02rem; flex: 1; }
+.topbar .who { font-size: 0.78rem; opacity: 0.8; }
+.topbar .role-pill {
+  font-family: var(--font-mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: .06em;
+  background: rgba(255,255,255,0.14); padding: 3px 8px; border-radius: 20px;
+}
+
+.main { flex: 1; padding: 18px 16px 90px; }
+@media (min-width: 900px) { .main { padding: 26px 32px 40px; } }
+
+.section-title { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; gap: 10px; flex-wrap: wrap; }
+.section-title h2 { margin: 0; font-size: 1.15rem; color: var(--navy-900); }
+.section-title .actions { display: flex; gap: 8px; }
+
+/* bottom tab bar (mobile/tablet) */
+.tabbar {
+  position: fixed; bottom: 0; left: 0; right: 0; background: var(--paper-card);
+  border-top: 1px solid var(--line); display: flex; z-index: 20;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.tabbar button {
+  flex: 1; background: none; border: none; padding: 10px 4px 8px; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 3px; color: var(--ink-soft);
+  font-size: 0.68rem; font-weight: 600;
+}
+.tabbar button svg { width: 20px; height: 20px; }
+.tabbar button.active { color: var(--navy-900); }
+.tabbar button.active svg { stroke: var(--navy-900); }
+
+.view { display: none; }
+.view.active { display: block; animation: fadeIn .18s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px);} to { opacity: 1; transform: none; } }
+
+/* ---- Stat tiles --------------------------------------------------- */
+.stat-tile {
+  background: var(--paper-card); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 16px; text-align: left;
+}
+.stat-tile .label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-soft); font-weight: 700; }
+.stat-tile .value { font-family: var(--font-mono); font-size: 1.9rem; font-weight: 700; color: var(--navy-900); margin-top: 4px; }
+.stat-tile .breakdown { display: flex; gap: 10px; margin-top: 10px; font-size: 0.78rem; }
+.stat-tile .breakdown span { display: flex; align-items: center; gap: 5px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.dot.present { background: var(--green); }
+.dot.late { background: var(--gold); }
+.dot.absent { background: var(--red); }
+
+/* ---- Stamped status badge (signature element) ---------------------- */
+.stamp {
+  display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-mono);
+  font-weight: 700; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em;
+  padding: 5px 10px; border-radius: 6px; border: 2px solid currentColor; transform: rotate(-2deg);
+}
+.stamp.present { color: var(--green); background: var(--green-soft); }
+.stamp.late { color: var(--gold); background: var(--gold-soft); }
+.stamp.absent { color: var(--red); background: var(--red-soft); }
+
+/* ---- Lists / tables -------------------------------------------------- */
+.list-row {
+  display: flex; align-items: center; gap: 12px; padding: 12px 4px; border-bottom: 1px solid var(--line);
+}
+.list-row:last-child { border-bottom: none; }
+.list-row .avatar { width: 42px; height: 42px; flex-shrink: 0; }
+.list-row .meta { flex: 1; min-width: 0; }
+.list-row .meta .name { font-weight: 600; font-size: 0.94rem; }
+.list-row .meta .sub { font-size: 0.78rem; color: var(--ink-soft); font-family: var(--font-mono); }
+.list-row .row-actions { display: flex; gap: 6px; }
+
+table.data-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+table.data-table th { text-align: left; font-size: 0.72rem; text-transform: uppercase; color: var(--ink-soft); padding: 8px 10px; border-bottom: 2px solid var(--line); }
+table.data-table td { padding: 10px; border-bottom: 1px solid var(--line); }
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+/* ---- Modal ------------------------------------------------------------ */
+.modal-backdrop {
+  position: fixed; inset: 0; background: rgba(15,26,48,0.55); display: none;
+  align-items: flex-end; justify-content: center; z-index: 50; padding: 0;
+}
+.modal-backdrop.open { display: flex; }
+.modal {
+  background: #fff; width: 100%; max-width: 460px; border-radius: 18px 18px 0 0;
+  max-height: 88vh; overflow-y: auto; padding: 22px; box-shadow: var(--shadow-lift);
+}
+@media (min-width: 640px) {
+  .modal-backdrop { align-items: center; }
+  .modal { border-radius: 18px; }
+}
+.modal h3 { margin: 0 0 16px; color: var(--navy-900); }
+.modal-close { float: right; }
+
+/* ---- Toasts ------------------------------------------------------------ */
+#toast-host { position: fixed; top: 14px; left: 50%; transform: translateX(-50%); z-index: 100; display: flex; flex-direction: column; gap: 8px; width: min(92vw, 380px); }
+.toast { background: var(--navy-900); color: #fff; padding: 12px 16px; border-radius: 10px; font-size: 0.86rem; box-shadow: var(--shadow-lift); }
+.toast.error { background: var(--red); }
+.toast.success { background: var(--green); }
+
+/* ---- Photo uploader ------------------------------------------------------ */
+.photo-picker { display: flex; align-items: center; gap: 12px; }
+.photo-picker .avatar { width: 56px; height: 56px; border: 1px dashed var(--line); }
+.photo-picker input[type=file] { display: none; }
+
+/* ---- Scanner ------------------------------------------------------------- */
+.scanner-wrap { max-width: 460px; margin: 0 auto; text-align: center; }
+#qr-reader { border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+.scan-result { margin-top: 16px; }
+.scan-result .card { display: flex; gap: 14px; align-items: center; text-align: left; }
+.scan-result .avatar { width: 58px; height: 58px; }
+
+/* ---- QR code card (generation) -------------------------------------------- */
+.qr-card { text-align: center; padding: 18px; }
+.qr-card #qr-canvas-holder { display: flex; justify-content: center; margin: 10px 0; }
+.qr-card .id-strip { font-family: var(--font-mono); font-size: 0.8rem; color: var(--ink-soft); }
+
+/* ---- Empty state ------------------------------------------------------------ */
+.empty-state { text-align: center; padding: 40px 20px; color: var(--ink-soft); }
+.empty-state .big { font-size: 2rem; margin-bottom: 8px; }
+
+/* ---- Day selector chip row ------------------------------------------------- */
+.date-select-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+
+/* ---- utility ------------------------------------------------------------- */
+.flex { display: flex; align-items: center; }
+.flex.between { justify-content: space-between; }
+.gap-8 { gap: 8px; } .gap-12 { gap: 12px; }
+.mt-8 { margin-top: 8px; } .mt-16 { margin-top: 16px; } .mt-24 { margin-top: 24px; }
+.text-soft { color: var(--ink-soft); }
+.text-sm { font-size: 0.82rem; }
+.badge-count { font-family: var(--font-mono); background: var(--navy-100); color: var(--navy-900); border-radius: 20px; padding: 2px 9px; font-size: 0.74rem; font-weight: 700; }
