@@ -70,6 +70,48 @@ function downloadCsv(filename, csvText) {
   URL.revokeObjectURL(url);
 }
 
+/* ---- CSV parsing (for bulk import) ------------------------------------------
+   Small hand-rolled parser: handles quoted fields, escaped quotes ("") and
+   commas/newlines inside quotes. Good enough for simple student/teacher rosters
+   without pulling in a library. */
+function parseCsv(text) {
+  const rows = [];
+  let row = [], field = '', inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQuotes) {
+      if (c === '"') {
+        if (text[i + 1] === '"') { field += '"'; i++; }
+        else inQuotes = false;
+      } else field += c;
+    } else if (c === '"') {
+      inQuotes = true;
+    } else if (c === ',') {
+      row.push(field); field = '';
+    } else if (c === '\n') {
+      row.push(field); rows.push(row); row = []; field = '';
+    } else if (c === '\r') {
+      // ignore, \n handles the line break
+    } else {
+      field += c;
+    }
+  }
+  if (field.length || row.length) { row.push(field); rows.push(row); }
+  return rows.filter((r) => r.some((cell) => cell !== ''));
+}
+
+/* Turns CSV text into an array of objects keyed by the header row. */
+function csvToObjects(text) {
+  const rows = parseCsv(text);
+  if (!rows.length) return [];
+  const headers = rows[0].map((h) => h.trim());
+  return rows.slice(1).map((r) => {
+    const obj = {};
+    headers.forEach((h, idx) => { obj[h] = (r[idx] !== undefined ? String(r[idx]).trim() : ''); });
+    return obj;
+  });
+}
+
 /* ---- Dates ----------------------------------------------------------------- */
 function todayIso() {
   const d = new Date();
@@ -112,6 +154,69 @@ async function stopScanner() {
   if (__activeScanner) {
     try { await __activeScanner.stop(); await __activeScanner.clear(); } catch (e) { /* noop */ }
     __activeScanner = null;
+  }
+}
+
+/* ---- Bulk import (CSV) -------------------------------------------------------
+   Shared by admin.js (students + teachers) and teacher.js (students only).
+   Callers must have a global STATE.sections array and a loadBootstrap() function
+   in scope to resolve section names and refresh the view after import. */
+function openBulkImportStudentsModal() {
+  if (!STATE.sections || !STATE.sections.length) { toast('You need at least one section before importing students', 'error'); return; }
+  openModal(
+    '<h3>Bulk Import Students</h3>' +
+    '<p class="hint">CSV columns: <span class="mono">name, lrn, sectionName, guardianContact</span>. ' +
+    '<code class="mono">sectionName</code> must match an existing section name exactly (case-insensitive).</p>' +
+    '<button type="button" class="btn secondary sm" id="m-import-template">Download CSV Template</button>' +
+    '<div class="field mt-16"><label>CSV file</label><input type="file" accept=".csv,text/csv" id="m-import-file"></div>' +
+    '<div id="import-result" class="hint mt-8"></div>' +
+    '<button class="btn block mt-16" id="m-import-run">Import Students</button>'
+  );
+  document.getElementById('m-import-template').addEventListener('click', () => {
+    downloadCsv('students_template.csv', 'name,lrn,sectionName,guardianContact\n');
+  });
+  document.getElementById('m-import-run').addEventListener('click', () => runBulkImport('bulkImportStudents', 'student(s)'));
+}
+
+function openBulkImportTeachersModal() {
+  openModal(
+    '<h3>Bulk Import Teachers</h3>' +
+    '<p class="hint">CSV columns: <span class="mono">name, username, email, password</span>. Leave <code class="mono">password</code> blank to use the default temporary password.</p>' +
+    '<button type="button" class="btn secondary sm" id="m-import-template">Download CSV Template</button>' +
+    '<div class="field mt-16"><label>CSV file</label><input type="file" accept=".csv,text/csv" id="m-import-file"></div>' +
+    '<div id="import-result" class="hint mt-8"></div>' +
+    '<button class="btn block mt-16" id="m-import-run">Import Teachers</button>'
+  );
+  document.getElementById('m-import-template').addEventListener('click', () => {
+    downloadCsv('teachers_template.csv', 'name,username,email,password\n');
+  });
+  document.getElementById('m-import-run').addEventListener('click', () => runBulkImport('bulkImportTeachers', 'teacher(s)'));
+}
+
+async function runBulkImport(action, noun) {
+  const fileInput = document.getElementById('m-import-file');
+  const file = fileInput.files[0];
+  if (!file) { toast('Choose a CSV file first', 'error'); return; }
+  const text = await file.text();
+  const rows = csvToObjects(text);
+  if (!rows.length) { toast('No rows found in that CSV', 'error'); return; }
+  const btn = document.getElementById('m-import-run');
+  const originalLabel = btn.textContent;
+  btn.disabled = true; btn.textContent = 'Importing…';
+  try {
+    const res = await SAMS.call(action, { rows });
+    const resultHost = document.getElementById('import-result');
+    resultHost.textContent = 'Imported ' + res.created + ' ' + noun + '.' +
+      (res.failed.length ? ' ' + res.failed.length + ' row(s) failed (bad name/username/section) — see below.' : '');
+    if (res.failed.length) {
+      resultHost.innerHTML += '<br>' + res.failed.map((f) => 'Row ' + f.row + ': ' + escapeHtml(f.error)).join('<br>');
+    }
+    toast(res.created + ' ' + noun + ' imported' + (res.failed.length ? ', ' + res.failed.length + ' failed' : ''), res.failed.length ? 'error' : 'success');
+    await loadBootstrap();
+  } catch (err) {
+    toast(err.message, 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = originalLabel;
   }
 }
 
