@@ -242,6 +242,7 @@ document.getElementById('pw-save').addEventListener('click', async () => {
 
 function wireStaticButtons() {
   document.getElementById('add-student-btn').addEventListener('click', () => openStudentModal(null));
+  document.getElementById('import-students-btn').addEventListener('click', () => openBulkImportStudentsModal());
   const picker = wirePhotoPicker(document.getElementById('me-photo'), '', 'Me');
   document.getElementById('me-photo').__picker = picker;
 }
