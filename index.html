@@ -25,7 +25,6 @@
         </div>
         <button type="submit" class="btn block" id="login-btn">Sign In</button>
       </form>
-      <p class="hint mt-16">Default admin login: <span class="mono">admin</span> / <span class="mono">admin123</span> (change it after first sign-in).</p>
     </div>
   </div>
 
@@ -48,6 +47,7 @@
           img.src = settings.logoUrl;
           img.style.display = 'block';
         }
+        applyThemeFromLogo(settings);
       } catch (e) { /* backend not configured yet — non-fatal on the login screen */ }
     })();
 
