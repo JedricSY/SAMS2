@@ -41,6 +41,7 @@ function applyBranding() {
     const img = document.getElementById('tb-logo');
     img.src = STATE.settings.logoUrl; img.style.display = 'block';
   }
+  applyThemeFromLogo(STATE.settings);
 }
 
 /* ---- Tabs ------------------------------------------------------------- */
@@ -52,7 +53,11 @@ function switchView(name) {
   document.querySelectorAll('.tab-btn').forEach((b) => b.classList.remove('active'));
   document.getElementById('view-' + name).classList.add('active');
   document.querySelector('.tab-btn[data-view="' + name + '"]').classList.add('active');
-  if (name === 'scanner') stopScanner();
+  if (name === 'scanner') {
+    stopScanner(); scannerRunning = false; document.getElementById('scanner-toggle').textContent = 'Start Scanner';
+  } else {
+    exitScannerFullscreen(); stopScanner(); scannerRunning = false;
+  }
 }
 
 /* ---- Overview ------------------------------------------------------------- */
@@ -194,6 +199,16 @@ document.getElementById('scanner-toggle').addEventListener('click', async () => 
   if (!scannerRunning) { await startScanner('qr-reader', onScan); scannerRunning = true; btn.textContent = 'Stop Scanner'; }
   else { await stopScanner(); scannerRunning = false; btn.textContent = 'Start Scanner'; }
 });
+document.getElementById('scanner-fullscreen-btn').addEventListener('click', async () => {
+  enterScannerFullscreen();
+  if (!scannerRunning) {
+    await startScanner('qr-reader', onScan);
+    scannerRunning = true; document.getElementById('scanner-toggle').textContent = 'Stop Scanner';
+  }
+});
+function onScannerFsClose() {
+  stopScanner(); scannerRunning = false; document.getElementById('scanner-toggle').textContent = 'Start Scanner';
+}
 let lastScanTs = 0;
 async function onScan(text) {
   const now = Date.now();
@@ -207,6 +222,8 @@ async function onScan(text) {
       '<div class="meta"><div class="name">' + escapeHtml(res.student.name) + '</div>' +
       '<div class="sub">' + (res.alreadyRecorded ? 'Already recorded today' : 'Time in ' + res.attendance.timeIn) + '</div>' +
       '<span class="stamp ' + badgeClass + '">' + res.attendance.status + '</span></div></div>';
+    const sec = STATE.sections.find((x) => x.id === res.student.sectionId);
+    updateFullscreenScanResult(res.student, sec ? sec.name : '', res.attendance.status);
   } catch (err) { toast(err.message, 'error'); }
 }
 
@@ -243,6 +260,7 @@ document.getElementById('pw-save').addEventListener('click', async () => {
 function wireStaticButtons() {
   document.getElementById('add-student-btn').addEventListener('click', () => openStudentModal(null));
   document.getElementById('import-students-btn').addEventListener('click', () => openBulkImportStudentsModal());
+  document.getElementById('bulk-qr-btn').addEventListener('click', () => openBulkQrModal());
   const picker = wirePhotoPicker(document.getElementById('me-photo'), '', 'Me');
   document.getElementById('me-photo').__picker = picker;
 }
