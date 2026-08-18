@@ -44,6 +44,41 @@ body {
   color: var(--ink);
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
+  position: relative;
+}
+body.no-scroll { overflow: hidden; }
+/* Auto-themed surfaces fade into their new logo-derived colors instead of snapping. */
+.btn, .topbar, .tabbar button.active, .stamp, .stat-tile::before {
+  transition: background .5s var(--ease), color .5s var(--ease), border-color .5s var(--ease), box-shadow .5s var(--ease);
+}
+
+/* ---- Ambient animated background (color-matched to the current theme) ------- */
+body::before, body::after {
+  content: ''; position: fixed; border-radius: 50%; filter: blur(70px); opacity: 0.16;
+  pointer-events: none; z-index: -1; transition: background 1s var(--ease);
+}
+body::before {
+  width: 480px; height: 480px; top: -160px; left: -140px;
+  background: radial-gradient(circle, var(--accent), transparent 70%);
+  animation: floatBlob1 24s ease-in-out infinite;
+}
+body::after {
+  width: 420px; height: 420px; bottom: -160px; right: -120px;
+  background: radial-gradient(circle, var(--accent-2), transparent 70%);
+  animation: floatBlob2 28s ease-in-out infinite;
+}
+@keyframes floatBlob1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(70px, 40px) scale(1.15); }
+  66% { transform: translate(20px, 90px) scale(0.95); }
+}
+@keyframes floatBlob2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(-60px, -50px) scale(1.1); }
+  66% { transform: translate(-20px, -10px) scale(0.92); }
+}
+@media (prefers-reduced-motion: reduce) {
+  body::before, body::after, .login-wrap::before, .login-wrap::after { animation: none; }
 }
 h1, h2, h3, .display { font-family: var(--font-display); letter-spacing: -0.01em; }
 .mono { font-family: var(--font-mono); }
@@ -107,14 +142,29 @@ img.photo, .avatar {
 .login-wrap {
   min-height: 100vh; display: flex; align-items: center; justify-content: center;
   position: relative; overflow: hidden;
-  background: linear-gradient(160deg, var(--navy-950), var(--navy-800) 60%, #24306b);
-  padding: 24px;
+  background: linear-gradient(160deg, var(--navy-950), var(--navy-800) 55%, var(--navy-700));
+  background-size: 220% 220%;
+  animation: loginGradientDrift 16s ease-in-out infinite;
+  padding: 24px; transition: background 1s var(--ease);
+}
+@keyframes loginGradientDrift {
+  0%, 100% { background-position: 0% 30%; }
+  50% { background-position: 100% 70%; }
 }
 .login-wrap::before, .login-wrap::after {
   content: ''; position: absolute; border-radius: 50%; filter: blur(60px); opacity: 0.35; pointer-events: none;
+  transition: background 1s var(--ease);
 }
-.login-wrap::before { width: 420px; height: 420px; top: -140px; left: -120px; background: radial-gradient(circle, var(--accent-2), transparent 70%); }
-.login-wrap::after { width: 380px; height: 380px; bottom: -160px; right: -100px; background: radial-gradient(circle, var(--gold), transparent 70%); opacity: 0.25; }
+.login-wrap::before {
+  width: 420px; height: 420px; top: -140px; left: -120px;
+  background: radial-gradient(circle, var(--accent-2), transparent 70%);
+  animation: floatBlob1 20s ease-in-out infinite;
+}
+.login-wrap::after {
+  width: 380px; height: 380px; bottom: -160px; right: -100px;
+  background: radial-gradient(circle, var(--accent), transparent 70%); opacity: 0.28;
+  animation: floatBlob2 24s ease-in-out infinite;
+}
 .login-card {
   position: relative; width: 100%; max-width: 380px; background: rgba(255,255,255,0.97);
   backdrop-filter: blur(10px); border-radius: 22px;
@@ -308,6 +358,47 @@ table.data-table td { padding: 10px; border-bottom: 1px solid var(--line); }
 
 /* ---- Day selector chip row ------------------------------------------------- */
 .date-select-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+
+/* ---- Bulk QR print checklist ----------------------------------------------- */
+.qr-check-list { display: flex; flex-direction: column; gap: 2px; max-height: 240px; overflow-y: auto; border: 1.5px solid var(--line); border-radius: var(--radius-sm); padding: 6px; }
+.qr-check-row { display: flex; align-items: center; gap: 8px; padding: 7px 6px; border-radius: 8px; font-size: 0.86rem; cursor: pointer; }
+.qr-check-row:hover { background: var(--paper); }
+.qr-check-row input { width: auto; accent-color: var(--accent); }
+
+/* ---- Full-screen scanner mode: scanner left, bleed photo right ------------- */
+.scanner-fullscreen-overlay {
+  position: fixed; inset: 0; z-index: 200; display: none;
+  grid-template-columns: 1fr 1fr;
+  background: var(--navy-950);
+}
+.scanner-fullscreen-overlay.open { display: grid; animation: backdropIn .18s var(--ease); }
+.fs-scanner-pane {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 24px; gap: 16px;
+}
+.fs-scanner-pane #qr-reader { width: min(92%, 480px); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-lift); }
+.fs-hint { color: rgba(255,255,255,0.7); font-size: 0.86rem; text-align: center; margin: 0; }
+.fs-photo-pane {
+  position: relative; overflow: hidden; background: var(--navy-900);
+  border-left: 1px solid rgba(255,255,255,0.08);
+  display: flex; align-items: center; justify-content: center;
+}
+.fs-placeholder { color: rgba(255,255,255,0.4); text-align: center; font-size: 0.92rem; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.fs-placeholder span { font-size: 2.4rem; }
+/* the "bleeding" photo: fills the pane edge-to-edge, no border/margin */
+.fs-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; animation: fadeIn .25s var(--ease); }
+.fs-caption {
+  position: absolute; left: 0; right: 0; bottom: 0; padding: 30px 28px 26px;
+  background: linear-gradient(0deg, rgba(6,10,20,0.9), rgba(6,10,20,0.45) 65%, transparent);
+  color: #fff;
+}
+.fs-name { font-family: var(--font-display); font-size: 1.6rem; font-weight: 700; }
+.fs-section { opacity: 0.82; font-size: 0.92rem; margin: 2px 0 12px; }
+.fs-close { position: absolute; top: 16px; right: 16px; z-index: 5; }
+@media (max-width: 760px) {
+  .scanner-fullscreen-overlay.open { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
+  .fs-photo-pane { border-left: none; border-top: 1px solid rgba(255,255,255,0.08); }
+}
 
 /* ---- utility ------------------------------------------------------------- */
 .flex { display: flex; align-items: center; }
