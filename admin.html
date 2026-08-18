@@ -61,6 +61,7 @@
         <h2>Students</h2>
         <div class="actions">
           <button class="btn secondary" id="import-students-btn">Bulk Import</button>
+          <button class="btn secondary" id="bulk-qr-btn">Bulk QR Print</button>
           <button class="btn" id="add-student-btn">+ New Student</button>
         </div>
       </div>
@@ -83,8 +84,12 @@
       <div class="scanner-wrap">
         <p class="text-soft text-sm">Point the camera at a student's QR ID. Time-in is recorded automatically.</p>
         <div id="qr-reader"></div>
-        <div class="mt-16">
+        <div class="mt-16 flex gap-8" style="justify-content:center">
           <button class="btn secondary" id="scanner-toggle">Start Scanner</button>
+          <button class="btn secondary" id="scanner-fullscreen-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
+            Full Screen
+          </button>
         </div>
         <div class="scan-result" id="scan-result"></div>
       </div>
